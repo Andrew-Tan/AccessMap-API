@@ -1,0 +1,115 @@
+<% include header.ejs %>
+
+<script type="text/javascript">
+  document.write("\<script src='//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js' type='text/javascript'>\<\/script>");
+</script>
+
+<form class="pure-form pure-form-stacked">
+  <fieldset>
+    <!-- Upper box with Title, username, and password -->
+    <div class="upper-box">
+      <!-- Title -->
+      <div>
+        <h1 class="title-padding">Log Demo</h1>
+      </div>
+      <div class="pure-control-group">
+        <!-- Username label and input -->
+        <label class="labels">Access Token:</label>
+
+        <div class="input-fields">
+          <textarea id="acctoken" title="" cols="35" rows="7"><%= access_token %></textarea>
+        </div>
+      </div>
+      <div class="pure-control-group">
+        <!-- Password label and input -->
+        <label class="labels">Refresh Token:</label>
+
+        <div class="input-fields">
+          <textarea id="reftoken" title="" cols="35" rows="7"><%= refresh_token %></textarea>
+        </div>
+      </div>
+      <div class="pure-control-group">
+        <label class="labels">Log Data:</label>
+
+        <div class="input-fields">
+          <textarea title="send" id="logJson" cols="35" rows="7"></textarea>
+        </div>
+      </div>
+    </div>
+    <!-- Bottom box with Sign in -->
+    <div class="bottom-box">
+      <div class="pure-controls sign-in-button">
+        <button id="logBtn" type="button" class="pure-button pure-button-primary">Post Log</button>
+      </div>
+    </div>
+    <div class="bottom-box">
+      <div class="input-fields">
+        <textarea title="response" id="responseJson" cols="35" rows="7" >[No response received yet]</textarea>
+      </div>
+    </div>
+  </fieldset>
+  <div class="from-text">
+    <a href="https://github.com/FrankHassanabad/Oauth2orizeRecipes">
+      From OAuth2OrizeRecipes
+    </a>
+  </div>
+</form>
+
+<script>
+  const randNum1 = Math.floor(Math.random() * 10000);
+  const randNum2 = Math.floor(Math.random() * 10000);
+  const randNum3 = Math.floor(Math.random() * 10000);
+  const json = {
+    data: [ randNum1, randNum2, randNum3 ]
+  };
+
+  $("#logJson").val(JSON.stringify(json, null, 2));
+</script>
+
+<script>
+  $(document).ready(function () {
+    $("#logBtn").click(function () {
+      try {
+        const parsedJson = JSON.parse($("#logJson").val());
+
+        $.ajax({
+          type: 'post',
+          headers: {
+            "Authorization": "Bearer " + $("#acctoken").val()
+          },
+          url: "/api/saveLog",
+          data: parsedJson,
+          success: function (result) {
+            $("#responseJson").val(JSON.stringify(result, null, 2));
+          },
+          failure: function (result) {
+            $("#responseJson").val(JSON.stringify(result, null, 2));
+          },
+          error: function (jqXHR, exception) {
+            let msg;
+            if (jqXHR.status === 0) {
+              msg = 'Not connect.\n Verify Network.';
+            } else if (jqXHR.status == 404) {
+              msg = 'Requested page not found. [404]';
+            } else if (jqXHR.status == 500) {
+              msg = 'Internal Server Error [500].';
+            } else if (exception === 'parsererror') {
+              msg = 'Requested JSON parse failed.';
+            } else if (exception === 'timeout') {
+              msg = 'Time out error.';
+            } else if (exception === 'abort') {
+              msg = 'Ajax request aborted.';
+            } else {
+              msg = 'Uncaught Error.\n' + jqXHR.responseText;
+            }
+            $("#responseJson").val('[ ' + msg + ' ]');
+          },
+        });
+      } catch (error) {
+        $("#responseJson").val(error.toString());
+      }
+    });
+  });
+</script>
+
+<<% include footer.ejs %>
