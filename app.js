@@ -12,6 +12,7 @@ const https          = require('https');
 const passport       = require('passport');
 const path           = require('path');
 const site           = require('./routes/site');
+const profile        = require('./routes/profile');
 const sso            = require('./sso');
 
 // Express configuration
@@ -62,8 +63,14 @@ app.get('/',                      site.index);
 app.get('/login',                 site.loginForm);
 app.post('/login',                site.login);
 app.get('/info',                  site.info);
-app.get('/logDemo',               site.logDemo);
-app.post('/api/saveLog',          site.saveLog);
+app.get('/logDemo',               profile.logDemo);
+
+app.get('/api/profile',           profile.get);
+app.put('/api/profile',           profile.create);
+app.post('/api/profile',          profile.update);
+app.delete('/api/profile',        profile.delete);
+app.get('/api/profiles',          profile.getAll);
+
 app.get('/receivetoken',          sso.receivetoken);
 
 // static resources for stylesheets, images, javascript files

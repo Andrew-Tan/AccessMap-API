@@ -66,7 +66,7 @@ exports.receivetoken = (req, res) => {
       grant_type    : 'authorization_code',
     },
   }, (error, response, body) => {
-    const { access_token, refresh_token} = JSON.parse(body);
+    const { access_token, refresh_token } = JSON.parse(body);
     if (response.statusCode === 200 && access_token != null) {
       req.session.accessToken  = access_token;  // eslint-disable-line no-param-reassign
       req.session.refreshToken = refresh_token; // eslint-disable-line no-param-reassign

@@ -4,6 +4,7 @@ const login    = require('connect-ensure-login');
 const passport = require('passport');
 const sso      = require('../sso/index');
 const db = require('../db/index');
+const utils = require('./utils');
 
 /**
  * https://localhost:4000/
@@ -94,6 +95,7 @@ exports.logDemo = [
   (req, res) => {
     const accessToken  = req.session.accessToken;
     const refreshToken = req.session.refreshToken;
+    console.log(req.user);
     res.render('demo', {
       access_token  : accessToken,
       refresh_token : refreshToken,
@@ -101,35 +103,99 @@ exports.logDemo = [
   },
 ];
 
-exports.saveLog = [
+exports.get = [
   passport.authenticate('bearer', { session: false }),
   (req, res) => {
-    const body = req.body;
-    if (body.data == null) {
-      return res.json({
-        success: false,
-        reason: 'Malformed post body',
-      });
-    }
-    db.accessTokens.find(req.user)
-    .then((tokenInfo) => {
-      db.logData.save(tokenInfo.userID, 'AccessMap', req.body.data)
-      .then((result) => {
-        if (result === undefined) {
-          return res.json({
-            success: false,
-            reason: 'Error saving data',
-          });
-        }
-        return res.json({
-          success: true,
-          logged_content: result,
-        });
-      });
+    db.profile.find(req.user.userID, req.query.profileid)
+    .then((result) => {
+      if (result === undefined) {
+        res.status(404);
+        return res.json({ error: 'profile not found' });
+      }
+      return res.json(result);
+    });
+  },
+];
+
+exports.getAll = [
+  passport.authenticate('bearer', { session: false }),
+  (req, res) => {
+    db.profile.findAll(req.user.userID)
+    .then((result) => {
+      if (result === undefined) {
+        res.status(404);
+        return res.json({ error: 'unknown error' });
+      }
+      return res.json(result);
+    });
+  },
+];
+
+exports.create = [
+  passport.authenticate('bearer', { session: false }),
+  (req, res) => {
+    db.profile.save(req.user.userID, {
+      profileName: req.body.profileName,
+      inclineMin: req.body.inclineMin,
+      inclineMax: req.body.inclineMax,
+      inclineIdeal: req.body.inclineIdeal,
+      avoidCurbs: req.body.avoidCurbs,
+      avoidConstruction: req.body.avoidConstruction,
     })
-    .catch(() => {
-      res.status(500);
-      res.json({ success: false, reason: 'Internal Server Error' });
+    .then((result) => {
+      if (result === undefined) {
+        res.status(404);
+        return res.json({ error: 'error creating profile' });
+      }
+      return res.json({
+        userID: result.userID,
+        profileName: result.profileName,
+        inclineMin: result.inclineMin,
+        inclineMax: result.inclineMax,
+        inclineIdeal: result.inclineIdeal,
+        avoidCurbs: result.avoidCurbs,
+        avoidConstruction: result.avoidConstruction,
+      });
+    });
+  },
+];
+
+exports.update = [
+  passport.authenticate('bearer', { session: false }),
+  (req, res) => {
+    const valueToUpdate = {
+      profileName: req.body.profileName,
+      inclineMin: req.body.inclineMin,
+      inclineMax: req.body.inclineMax,
+      inclineIdeal: req.body.inclineIdeal,
+      avoidCurbs: req.body.avoidCurbs,
+      avoidConstruction: req.body.avoidConstruction,
+    };
+    utils.cleanNullAttribute(valueToUpdate);
+
+    db.profile.update(req.user.userID, parseInt(req.query.profileID, 10), valueToUpdate)
+    .then((result) => {
+      if (!result) {
+        res.status(404);
+        return res.json({ error: 'error updating profile' });
+      }
+      return res.json({
+        success: 'profile updated',
+      });
+    });
+  },
+];
+
+exports.delete = [
+  passport.authenticate('bearer', { session: false }),
+  (req, res) => {
+    db.profile.delete(req.user.userID, parseInt(req.query.profileID, 10))
+    .then((result) => {
+      if (result === undefined) {
+        res.status(404);
+        return res.json({ error: 'error deleting profile' });
+      }
+      return res.json(result);
     });
   },
 ];

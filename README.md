@@ -1,4 +1,4 @@
-AccessMap Data Logger
+AccessMap APIs
 ==================
 This is the data logger to be used by AccessMap. The logger talks to the
 OAuth server to identify the user/device sending the message and log valid
@@ -11,7 +11,7 @@ are attached as inline comment.
 
 ## Installation
 ```
-cd AccessMap-Data-Logger
+cd AccessMap-API
 npm install
 npm start
 ```

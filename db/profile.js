@@ -18,17 +18,26 @@ const models = require('./models');
  */
 exports.find = async (userID, profileID) => {
   try {
-    const result = await models.profile.findOne({
+    const queryResult = await models.profile.findOne({
       where: {
         id: profileID,
         user_id: userID,
       }
     });
 
-    if (result == null) {
+    if (queryResult == null) {
       return Promise.resolve(undefined);
     }
-    return Promise.resolve(result);
+    return Promise.resolve({
+      profileID: queryResult.id,
+      userID: queryResult.userID,
+      profileName: queryResult.profileName,
+      inclineMin: queryResult.inclineMin,
+      inclineMax: queryResult.inclineMax,
+      inclineIdeal: queryResult.inclineIdeal,
+      avoidCurbs: queryResult.avoidCurbs,
+      avoidConstruction: queryResult.avoidConstruction,
+    });
   } catch (error) {
     return Promise.resolve(undefined);
   }
@@ -37,16 +46,26 @@ exports.find = async (userID, profileID) => {
 exports.findAll = async (userID) => {
   // TODO: Better promise mechanism
   try {
-    const result = await models.profile.findAll({
+    const queryResults = await models.profile.findAll({
       where: {
         userID: userID,
       }
     });
 
-    // TODO: check what will return on empty
-    if (result === null) {
-      return Promise.resolve(undefined);
+    const result = [];
+    for (let i = 0; i < queryResults.length; i++) {
+      result.push({
+        profileID: queryResults[i].id,
+        userID: queryResults[i].userID,
+        profileName: queryResults[i].profileName,
+        inclineMin: queryResults[i].inclineMin,
+        inclineMax: queryResults[i].inclineMax,
+        inclineIdeal: queryResults[i].inclineIdeal,
+        avoidCurbs: queryResults[i].avoidCurbs,
+        avoidConstruction: queryResults[i].avoidConstruction,
+      });
     }
+
     return Promise.resolve(result);
   } catch (error) {
     return Promise.resolve(undefined);
@@ -74,7 +93,7 @@ exports.save = async (userID, profile) => {
 /**
  * Updates a existing profile
  * @param   {Number}  userID              - The access token (required)
- * @param   {String}  profileID           - The expiration of the access token (required)
+ * @param   {Number}  profileID           - The expiration of the access token (required)
  * @param   {Object}  valueToUpdate       - The new profile to be added
  * @returns {Promise} resolved with the saved token
  */
@@ -105,7 +124,7 @@ exports.delete = async (userID, profileID) => {
       return models.profile.findOne({
         where: {
           userID,
-          profileID
+          id: profileID,
         }
       }, {transaction: t}).then(code => {
         if (code ===  null) {
@@ -115,7 +134,7 @@ exports.delete = async (userID, profileID) => {
         return models.profile.destroy({
           where: {
             userID,
-            profileID
+            id: profileID,
           },
           truncate: true
         }, {transaction: t});

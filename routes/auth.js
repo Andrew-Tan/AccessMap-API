@@ -74,11 +74,11 @@ passport.use(new LocalStrategy((username, password, done) => {
  */
 passport.use(new BearerStrategy((accessToken, done) => {
   db.accessTokens.find(accessToken)
-  .then((token) => {
+  .then(async (token) => {
     // Search database first
     if (token != null && new Date() > token.expirationDate) {
-      db.accessTokens.delete(accessToken)
-      .then(() => null);
+      await db.accessTokens.delete(accessToken)
+      return null;
     }
     return token;
   })
@@ -96,7 +96,7 @@ passport.use(new BearerStrategy((accessToken, done) => {
     }
     return token;
   })
-  .then(() => done(null, accessToken))
+  .then(token => done(null, token))
   .catch(() => done(null, false));
 }));
 

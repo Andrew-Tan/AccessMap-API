@@ -36,6 +36,27 @@ exports.find = async (token) => {
   }
 };
 
+exports.findByUserID = async (userID) => {
+  try {
+    const result = await models.refresh_tokens.findOne({
+      where: {
+        userID: userID,
+      }
+    });
+
+    if (result === null) {
+      return Promise.resolve(undefined);
+    }
+    return Promise.resolve({
+      clientID       : result.clientID,
+      userID         : result.userID,
+      scope          : result.scope,
+    })
+  } catch (error) {
+    return Promise.resolve(undefined);
+  }
+};
+
 /**
  * Saves a refresh token, user id, client id, and scope. Note: The actual full refresh token is
  * never saved.  Instead just the ID of the token is saved.  In case of a database breach this

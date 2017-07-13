@@ -100,36 +100,3 @@ exports.logDemo = [
     });
   },
 ];
-
-exports.saveLog = [
-  passport.authenticate('bearer', { session: false }),
-  (req, res) => {
-    const body = req.body;
-    if (body.data == null) {
-      return res.json({
-        success: false,
-        reason: 'Malformed post body',
-      });
-    }
-    db.accessTokens.find(req.user)
-    .then((tokenInfo) => {
-      db.logData.save(tokenInfo.userID, 'AccessMap', req.body.data)
-      .then((result) => {
-        if (result === undefined) {
-          return res.json({
-            success: false,
-            reason: 'Error saving data',
-          });
-        }
-        return res.json({
-          success: true,
-          logged_content: result,
-        });
-      });
-    })
-    .catch(() => {
-      res.status(500);
-      res.json({ success: false, reason: 'Internal Server Error' });
-    });
-  },
-];
