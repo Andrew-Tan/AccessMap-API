@@ -63,7 +63,8 @@ app.get('/',                      site.index);
 app.get('/login',                 site.loginForm);
 app.post('/login',                site.login);
 app.get('/info',                  site.info);
-app.get('/logDemo',               profile.logDemo);
+
+app.get('/tokenDemo',             profile.tokenDemo);
 
 app.get('/api/profile',           profile.get);
 app.put('/api/profile',           profile.create);
@@ -75,6 +76,14 @@ app.get('/receivetoken',          sso.receivetoken);
 
 // static resources for stylesheets, images, javascript files
 app.use(express.static(path.join(__dirname, 'public')));
+
+// Default route handler
+app.use((req, res) => {
+  res.status(404);
+  res.json({
+    error: '404 Not Found',
+  });
+});
 
 // From time to time we need to clean up any expired tokens
 // in the database

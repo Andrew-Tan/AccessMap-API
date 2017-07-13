@@ -1,8 +1,8 @@
 AccessMap APIs
 ==================
-This is the data logger to be used by AccessMap. The logger talks to the
-OAuth server to identify the user/device sending the message and log valid
-message into the database.
+This is the API server to be used by AccessMap App. The resource server talks to
+OAuth server to identify the user/device and provide customized resources to
+the apps.
 
 ## Configuration
 Edit config/index.js to specify where the OAuth server lives, what client
