@@ -109,11 +109,11 @@ if (config.useHTTPSScheme) {
   https.globalAgent.options.rejectUnauthorized = false;
 
   // Create our HTTPS server listening on port 4000.
-  https.createServer(options, app).listen(4000);
+  https.createServer(options, app).listen(4040);
 } else {
   console.log('Using HTTP');
-  app.listen(4000);
+  app.listen(4040);
 }
 
-console.log('Resource Server started on port 4000');
+console.log('Resource Server started on port 4040');
 
