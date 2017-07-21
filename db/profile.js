@@ -20,8 +20,8 @@ exports.find = async (userID, profileID) => {
   try {
     const queryResult = await models.profile.findOne({
       where: {
-        id: profileID,
-        user_id: userID,
+        profileID,
+        userID,
       }
     });
 
@@ -101,7 +101,7 @@ exports.update = async (userID, profileID, valueToUpdate) => {
   try {
     await models.profile.update(valueToUpdate, {
       where: {
-        id: profileID,
+        profileID,
         userID,
       },
     });
@@ -124,7 +124,7 @@ exports.delete = async (userID, profileID) => {
       return models.profile.findOne({
         where: {
           userID,
-          id: profileID,
+          profileID,
         }
       }, {transaction: t}).then(code => {
         if (code ===  null) {
@@ -134,7 +134,7 @@ exports.delete = async (userID, profileID) => {
         return models.profile.destroy({
           where: {
             userID,
-            id: profileID,
+            profileID,
           },
           truncate: true
         }, {transaction: t});

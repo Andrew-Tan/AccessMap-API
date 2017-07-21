@@ -17,7 +17,7 @@ exports.deployMode = 'test';
  * The HTTPS server is using self-signed certificate, refer to README in cert
  * for more detail
  */
-exports.useHTTPSScheme = true;
+exports.useHTTPSScheme = false;
 
 /**
  * The client id and the client secret.  I'm using a
@@ -27,33 +27,6 @@ exports.useHTTPSScheme = true;
 exports.client = {
   clientID     : 'trustedClient',
   clientSecret : 'ssh-otherpassword',
-};
-
-// TODO Compact this more
-
-/**
- * The Authorization server's location, port number, and the token info end point
- */
-exports.authorization = {
-  host         : 'oauth.accessmap.io',
-  port         : null,
-  url          : 'https://oauth.accessmap.io/',
-  tokenURL     : 'oauth/token',
-  authorizeURL : 'https://oauth.accessmap.io/dialog/authorize',
-  tokeninfoURL : 'https://oauth.accessmap.io/api/tokeninfo?access_token=',
-  redirectURL  : 'https://localhost:4000/receivetoken',
-};
-
-/**
- * Database configuration for access and refresh tokens.
- *
- * timeToCheckExpiredTokens - The time in seconds to check the database
- * for expired access tokens.  For example, if it's set to 3600, then that's
- * one hour to check for expired access tokens.
- * @type {{timeToCheckExpiredTokens: number}}
- */
-exports.db = {
-  timeToCheckExpiredTokens : 3600,
 };
 
 /**

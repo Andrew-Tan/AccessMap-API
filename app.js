@@ -1,42 +1,41 @@
 'use strict';
 
-const bodyParser     = require('body-parser');
-const cookieParser   = require('cookie-parser');
 const config         = require('./config');
-const db             = require('./db');
-const model          = require('./db/models').sequelize;
-const express        = require('express');
-const expressSession = require('express-session');
-const fs             = require('fs');
-const https          = require('https');
-const passport       = require('passport');
 const path           = require('path');
 const site           = require('./routes/site');
 const profile        = require('./routes/profile');
-const sso            = require('./sso');
 
 // Express configuration
+const express        = require('express');
+const bodyParser     = require('body-parser');
+const cookieParser   = require('cookie-parser');
+
 const app = express();
 app.set('view engine', 'ejs');
 app.use(cookieParser());
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.json());
 
-// initalize sequelize with session store
+// Initialize Session
+const model          = require('./db/models').sequelize;
+const expressSession = require('express-session');
 const SequelizeStore = require('connect-session-sequelize')(expressSession.Store);
 
-// Session Configuration
+const sequelizeStore = new SequelizeStore({ db: model });
 app.use(expressSession({
   saveUninitialized : true,
   resave            : true,
   secret            : config.session.secret,
-  store: new SequelizeStore({
-    db: model,
-  }),
+  store: sequelizeStore,
 }));
 
-app.use(bodyParser.urlencoded({ extended: true }));
-app.use(bodyParser.json());
-app.use(passport.initialize());
-app.use(passport.session());
+// Keycloak
+const Keycloak = require('keycloak-connect');
+
+const keycloak = new Keycloak({
+  store: sequelizeStore,
+});
+app.use(keycloak.middleware());
 
 // Catch all for error messages.  Instead of a stack
 // trace, this will log the json of the error message
@@ -56,23 +55,12 @@ app.use((err, req, res, next) => {
   }
 });
 
-// Passport configuration
-require('./routes/auth');
-
-app.get('/',                      site.index);
-app.get('/login',                 site.loginForm);
-app.post('/login',                site.login);
-app.get('/info',                  site.info);
-
-app.get('/tokenDemo',             profile.tokenDemo);
-
-app.get('/api/profile',           profile.get);
-app.put('/api/profile',           profile.create);
-app.post('/api/profile',          profile.update);
-app.delete('/api/profile',        profile.delete);
-app.get('/api/profiles',          profile.getAll);
-
-app.get('/receivetoken',          sso.receivetoken);
+app.get('/', site.index);
+app.get('/api/profile', keycloak.protect(), profile.get);
+app.put('/api/profile', keycloak.protect(), profile.create);
+app.post('/api/profile', keycloak.protect(), profile.update);
+app.delete('/api/profile', keycloak.protect(), profile.delete);
+app.get('/api/profiles', keycloak.protect(), profile.getAll);
 
 // static resources for stylesheets, images, javascript files
 app.use(express.static(path.join(__dirname, 'public')));
@@ -85,35 +73,8 @@ app.use((req, res) => {
   });
 });
 
-// From time to time we need to clean up any expired tokens
-// in the database
-setInterval(() => {
-  db.accessTokens.removeExpired()
-  .catch(err => console.error('Error trying to remove expired tokens:', err.stack));
-}, config.db.timeToCheckExpiredTokens * 1000);
 
-if (config.useHTTPSScheme) {
-  console.log('Using HTTPS');
-  // TODO: Change these for your own certificates.  This was generated
-  // through the commands:
-  // openssl genrsa -out privatekey.pem 2048
-  // openssl req -new -key privatekey.pem -out certrequest.csr
-  // openssl x509 -req -in certrequest.csr -signkey privatekey.pem -out certificate.pem
-  const options = {
-    key  : fs.readFileSync(path.join(__dirname, 'certs/privatekey.pem')),
-    cert : fs.readFileSync(path.join(__dirname, 'certs/certificate.pem')),
-  };
-
-  // This setting is so that our certificates will work although they are all self signed
-  // TODO: Remove this if you are NOT using self signed certs
-  https.globalAgent.options.rejectUnauthorized = false;
-
-  // Create our HTTPS server listening on port 4000.
-  https.createServer(options, app).listen(4040);
-} else {
-  console.log('Using HTTP');
-  app.listen(4040);
-}
-
+console.log('Using HTTP');
+app.listen(4040);
 console.log('Resource Server started on port 4040');
 
