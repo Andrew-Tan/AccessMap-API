@@ -4,7 +4,8 @@ const db = require('../db/index');
 const utils = require('./utils');
 
 exports.get = (req, res) => {
-  db.profile.find(req.session.id, req.query.profileid).then((result) => {
+  db.profile.find(utils.retrieveTokenPayload(req)['sub'], req.query.profileid)
+  .then((result) => {
     if (result === undefined) {
       res.status(404);
       return res.json({ error: 'profile not found' });
@@ -14,7 +15,8 @@ exports.get = (req, res) => {
 };
 
 exports.getAll = (req, res) => {
-  db.profile.findAll(req.session.id).then((result) => {
+  db.profile.findAll(utils.retrieveTokenPayload(req)['sub'])
+  .then((result) => {
     if (result === undefined) {
       res.status(404);
       return res.json({ error: 'unknown error' });
@@ -24,7 +26,7 @@ exports.getAll = (req, res) => {
 };
 
 exports.create = (req, res) => {
-  db.profile.save(req.session.id, {
+  db.profile.save(utils.retrieveTokenPayload(req)['sub'], {
     profileName: req.body.profileName,
     inclineMin: req.body.inclineMin,
     inclineMax: req.body.inclineMax,
@@ -59,8 +61,9 @@ exports.update = (req, res) => {
   };
   utils.cleanNullAttribute(valueToUpdate);
 
-  db.profile.update(req.session.id, parseInt(req.query.profileID, 10),
-    valueToUpdate).then((result) => {
+  db.profile.update(utils.retrieveTokenPayload(req)['sub'],
+                    req.query.profileID, valueToUpdate)
+  .then((result) => {
       if (!result) {
         res.status(404);
         return res.json({ error: 'error updating profile' });
@@ -72,8 +75,8 @@ exports.update = (req, res) => {
 };
 
 exports.delete = (req, res) => {
-  db.profile.delete(req.session.id, parseInt(req.query.profileID, 10)).
-    then((result) => {
+  db.profile.delete(utils.retrieveTokenPayload(req)['sub'], req.query.profileID)
+  .then((result) => {
       if (result === undefined) {
         res.status(404);
         return res.json({ error: 'error deleting profile' });

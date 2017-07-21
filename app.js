@@ -34,7 +34,7 @@ const Keycloak = require('keycloak-connect');
 
 const keycloak = new Keycloak({
   store: sequelizeStore,
-});
+}, config.client);
 app.use(keycloak.middleware());
 
 // Catch all for error messages.  Instead of a stack

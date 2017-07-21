@@ -20,13 +20,17 @@ exports.deployMode = 'test';
 exports.useHTTPSScheme = false;
 
 /**
- * The client id and the client secret.  I'm using a
- * "trusted" client so that I don't get the "decision"
- * screen.
+ * The client installation config for Keycloak, see
+ * https://keycloak.gitbooks.io/documentation/securing_apps/topics/oidc/nodejs-adapter.html
+ * for instruction.
  */
 exports.client = {
-  clientID     : 'trustedClient',
-  clientSecret : 'ssh-otherpassword',
+  "realm": "AccessMap",
+  "bearer-only": true,
+  "auth-server-url": "https://oauth.accessmap.io/auth",
+  "ssl-required": "external",
+  "resource": "accessmap-api",
+  "use-resource-role-mappings": true
 };
 
 /**

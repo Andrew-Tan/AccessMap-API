@@ -29,7 +29,7 @@ exports.find = async (userID, profileID) => {
       return Promise.resolve(undefined);
     }
     return Promise.resolve({
-      profileID: queryResult.id,
+      profileID: queryResult.profileID,
       userID: queryResult.userID,
       profileName: queryResult.profileName,
       inclineMin: queryResult.inclineMin,
@@ -55,7 +55,7 @@ exports.findAll = async (userID) => {
     const result = [];
     for (let i = 0; i < queryResults.length; i++) {
       result.push({
-        profileID: queryResults[i].id,
+        profileID: queryResults[i].profileID,
         userID: queryResults[i].userID,
         profileName: queryResults[i].profileName,
         inclineMin: queryResults[i].inclineMin,
