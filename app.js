@@ -37,24 +37,6 @@ const keycloak = new Keycloak({
 }, config.client);
 app.use(keycloak.middleware());
 
-// Catch all for error messages.  Instead of a stack
-// trace, this will log the json of the error message
-// to the browser and pass along the status with it
-app.use((err, req, res, next) => {
-  if (err) {
-    if (err.status == null) {
-      console.error('Internal unexpected error from:', err.stack);
-      res.status(500);
-      res.json(err);
-    } else {
-      res.status(err.status);
-      res.json(err);
-    }
-  } else {
-    next();
-  }
-});
-
 app.get('/', site.index);
 app.get('/api/profile', keycloak.protect(), profile.get);
 app.put('/api/profile', keycloak.protect(), profile.create);
@@ -76,5 +58,5 @@ app.use((req, res) => {
 
 console.log('Using HTTP');
 app.listen(4040);
-console.log('Resource Server started on port 4040');
+console.log('AccessMap API started on port 4040');
 
