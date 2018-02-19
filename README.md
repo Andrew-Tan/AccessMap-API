@@ -24,6 +24,6 @@ Here are the APIs currently available
 |---------------|--------|-----------------------------------------------|---------------------------|---------------|
 | /api/profile  | GET    | Retrieve a profile with profile ID            | profileID                 | YES           |
 | /api/profiles | GET    | Retrieve all profiles from the logged in user | N/A                       | YES           |
-| /api/profile  | POST   | Update a profile with profile ID              | profileID newValues(body) | YES           |
-| /api/profile  | PUT    | Create a profile                              | newValues(body)           | YES           |
+| /api/profile  | PUT   | Update a profile with profile ID              | profileID newValues(body) | YES           |
+| /api/profile  | POST    | Create a profile                              | newValues(body)           | YES           |
 | /api/profile  | DELETE | Delete a profile with profile ID              | profileID                 | YES           |

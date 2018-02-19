@@ -16,6 +16,22 @@ app.use(cookieParser());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
+// CORS Settings
+app.use((req, res, next) => {
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Methods', 'GET, PUT, POST, DELETE, OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, Content-Length, X-Requested-With, profileID');
+
+  // intercepts OPTIONS method
+  if (req.method === 'OPTIONS') {
+    // respond with 200
+    res.send(200);
+  } else {
+    // move on
+    next();
+  }
+});
+
 // Initialize Session
 const model          = require('./db/models').sequelize;
 const expressSession = require('express-session');
@@ -39,8 +55,8 @@ app.use(keycloak.middleware());
 
 app.get('/', site.index);
 app.get('/api/profile', keycloak.protect(), profile.get);
-app.put('/api/profile', keycloak.protect(), profile.create);
-app.post('/api/profile', keycloak.protect(), profile.update);
+app.post('/api/profile', keycloak.protect(), profile.create);
+app.put('/api/profile', keycloak.protect(), profile.update);
 app.delete('/api/profile', keycloak.protect(), profile.delete);
 app.get('/api/profiles', keycloak.protect(), profile.getAll);
 

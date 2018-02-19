@@ -4,7 +4,7 @@ const db = require('../db/index');
 const utils = require('./utils');
 
 exports.get = (req, res) => {
-  db.profile.find(utils.retrieveTokenPayload(req)['sub'], req.query.profileid)
+  db.profile.find(utils.retrieveTokenPayload(req)['sub'], req.query.profileID)
   .then((result) => {
     if (result === undefined) {
       res.status(404);

@@ -9,6 +9,8 @@
  * Tokens sequelize data structure which stores all the profiles
  */
 const models = require('./models');
+const Sequelize = require('sequelize');
+const Op = Sequelize.Op;
 
 /**
  * Returns an profile if it finds one, otherwise returns undefined if one is not found.
@@ -49,7 +51,8 @@ exports.findAll = async (userID) => {
     const queryResults = await models.profile.findAll({
       where: {
         userID: userID,
-      }
+      },
+      order: [ ['updatedAt', 'DESC'] ],
     });
 
     const result = [];
@@ -124,7 +127,7 @@ exports.delete = async (userID, profileID) => {
       return models.profile.findOne({
         where: {
           userID,
-          profileID,
+          [Op.and]: {profileID: profileID},
         }
       }, {transaction: t}).then(code => {
         if (code ===  null) {
@@ -134,9 +137,8 @@ exports.delete = async (userID, profileID) => {
         return models.profile.destroy({
           where: {
             userID,
-            profileID,
-          },
-          truncate: true
+            [Op.and]: {profileID: profileID},
+          }
         }, {transaction: t});
       });
     });
